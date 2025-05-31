@@ -5,7 +5,7 @@ import yuheng
 from OceanHuedClam import OceanHuedClam
 from yuheng.method.network import get_endpoint_overpass
 
-from .const import exception_status_code
+from .const import exception_status_code, get_message
 
 
 class Kokomi:
@@ -17,7 +17,7 @@ class Kokomi:
         self.directive_text_temp = ""
         self.Watatsumi = {"Sangonomiya_name": "", "Sangonomiya_api": ""}
         # Sangonomiya_name = Overpass_name, Sangonomiya_api = Overpass_api
-        print(exception_status_code[0x0000])
+        print(get_message("system.info.ready"))
 
     # 诶，这个是...
     def energy_check(self):
@@ -80,7 +80,7 @@ class Kokomi:
         if preset in Watatsumi_list:
             self.Watatsumi["Sangonomiya_name"] = Watatsumi_list.get(preset)["Sangonomiya_name"]
             self.Watatsumi["Sangonomiya_api"] = Watatsumi_list.get(preset)["Sangonomiya_api"]
-            print(exception_status_code[0x0001].format(name=self.Watatsumi["Sangonomiya_name"],
+            print(get_message("system.info.overpass.defined", name=self.Watatsumi["Sangonomiya_name"],
                                             api=self.Watatsumi["Sangonomiya_api"]))
             self.energy = self.energy + 1
             return 1
@@ -89,16 +89,16 @@ class Kokomi:
                 if name != "" and api != "":
                     self.Watatsumi["Sangonomiya_name"] = name
                     self.Watatsumi["Sangonomiya_api"] = api
-                    print(exception_status_code[0x1001].format(name=self.Watatsumi["Sangonomiya_name"],
+                    print(get_message("system.warn.overpass.custom", name=self.Watatsumi["Sangonomiya_name"],
                                                     api=self.Watatsumi["Sangonomiya_api"]))
                     self.energy = self.energy + 0
                     return 0
                 else:
-                    print(exception_status_code[0x2001])
+                    print(get_message("system.error.overpass.incomplete"))
                     self.energy = self.energy - 2
                     return -2
             else:
-                print(exception_status_code[0x2002])
+                print(get_message("system.error.overpass.preset.undefined"))
                 self.energy = self.energy - 1
                 return -1
 
@@ -117,7 +117,7 @@ class Kokomi:
         self.energy_check()
         result_list = []
         if isinstance(query_info, str):
-            print(exception_status_code[0x0010])
+            print(get_message("system.info.overpass.searching"))
             result_list.append(1)
             result = self.get_content("data=[out:xml][timeout:" + str(timeout) + "];" + query_info + "out body;")
             result_list.append(result)
@@ -125,7 +125,7 @@ class Kokomi:
             query_list = query_info.convert()
             result_list.append(len(query_list))
             for x in range(len(query_list)):
-                print(exception_status_code[0x0011].format(now=x+1, total=len(query_list)))
+                print(get_message("system.info.overpass.searching.progress", now=x+1, total=len(query_list)))
                 result = self.get_content("data=[out:xml][timeout:" + str(timeout) + "];" + query_list[x] + "out body;")
                 result_list.append(result)
         return result_list
@@ -133,13 +133,13 @@ class Kokomi:
     def get_content(self, query_info: str = ""):
         print(self.Watatsumi["Sangonomiya_api"] + "interpreter?" + query_info, "\n")
         if self.Watatsumi["Sangonomiya_api"] == "":
-            print(exception_status_code[0x2000])
+            print(get_message("system.error.overpass.missing"))
             self.energy = self.energy - 2
             return -2
         else:
             text_temp = requests.get(self.Watatsumi["Sangonomiya_api"] + "interpreter?" + query_info).text
             if text_temp == "":
-                print(exception_status_code[0x2010])
+                print(get_message("system.error.overpass.noinfo"))
                 self.energy = self.energy - 1
                 return -1
             else:
@@ -246,10 +246,10 @@ class Kokomi:
                 directive_list.update({directive_id: directive})
 
             # 结束
-            print(exception_status_code[0x0012].format(number=directive_found, type=directive_type))
+            print(get_message("system.info.feature.found", number=directive_found, type=directive_type))
             self.energy = self.energy + 1
             return directive_list
         else:
-            print(exception_status_code[0x201A].format(type=directive_type))
+            print(get_message("system.error.feature.type.undefined", type=directive_type))
             self.energy = self.energy - 1
             return {}
