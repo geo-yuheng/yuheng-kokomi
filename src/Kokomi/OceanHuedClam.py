@@ -1,6 +1,6 @@
 import copy
 
-from global_ import print_dict
+from .const import exception_status_code
 
 # 要按照type.A(other_condition)[k_v](if)->.B;>;的顺序和结构去整理
 # TODO:不需要改变输入输出集时只需要一句话，需要怎么判断？
@@ -30,13 +30,13 @@ class OceanHuedClam:
         # v可含正则表达式、v可含正则表达式但不匹配、kv皆可含正则表达式，v可含正则表达式且不分大小写
         if relation in relation_list:
             if relation not in ["exist", "!exist"] and value == "":
-                print(print_dict[0x2105])
+                print(exception_status_code[0x2105])
                 return self
             else:
                 self.__kv_dict.update({key: {"value": value, "relation": relation}})
                 return self
         else:
-            print(print_dict[0x2104])
+            print(exception_status_code[0x2104])
             return self
 
     # 海染砗磲（QL语句）之周边检索：查询特定锦囊（要素）周边指定半径的内容。
@@ -52,13 +52,13 @@ class OceanHuedClam:
         # 要素集合
         if isinstance(set_point, str):
             if (set_point not in self.__include_dict) and (set_point != "_"):
-                print(print_dict[0x2108].format(set=set_point))
+                print(exception_status_code[0x2108].format(set=set_point))
             else:
                 self.__around_dict = {set_point: r}
         # 点串线
         else:
             if len(set_point) % 2 != 0:
-                print(print_dict[0x2109])
+                print(exception_status_code[0x2109])
             else:
                 self.__around_dict = {r: set_point}
         return self
@@ -76,7 +76,7 @@ class OceanHuedClam:
             if (set_name in self.__include_dict) or (set_name == "_"):
                 self.__from_OceanHuedClam_list.append(set_name)
             else:
-                print(print_dict[0x210C].format(set=set_name))
+                print(exception_status_code[0x210C].format(set=set_name))
         else:
             and_list = []
             for x in set_name:
@@ -84,9 +84,9 @@ class OceanHuedClam:
                     if (x in self.__include_dict) or (x == "_"):
                         and_list.append(x)
                     else:
-                        print(print_dict[0x210C].format(set=set_name))
+                        print(exception_status_code[0x210C].format(set=set_name))
                 else:
-                    print(print_dict[0x210D])
+                    print(exception_status_code[0x210D])
             if len(and_list) > 0:
                 self.__from_OceanHuedClam_list.append(and_list)
         return self
@@ -105,22 +105,22 @@ class OceanHuedClam:
                 self.__id_dict.update({str(directive_id[x]): id_opreation})
         else:
             self.__id_dict.update({str(directive_id): id_opreation})
-        print(print_dict[0x1114])
+        print(exception_status_code[0x1114])
         return self
 
     # 在多边形中（poly）
     def located_in(self, poly_list: list) -> 'OceanHuedClam':
         if len(poly_list) % 2 != 0:
-            print(print_dict[0x2110])
+            print(exception_status_code[0x2110])
         else:
             self.__located_in_list = poly_list
         return self
 
     def include_OceanHuedClam(self, set_name: str, the_set: 'OceanHuedClam') -> 'OceanHuedClam':
         if set_name in self.__include_dict:
-            print(print_dict[0x1100].format(set=set_name))
+            print(exception_status_code[0x1100].format(set=set_name))
         self.__include_dict.update({set_name: the_set})
-        print(print_dict[0x0100].format(set=set_name))
+        print(exception_status_code[0x0100].format(set=set_name))
         return self
 
     # TODO:判断要几个查询，并把要查询的内容返回出去，以便外部查询，step=已经进行了几步，不重复执行
@@ -239,7 +239,7 @@ class OceanHuedClam:
                         result += "." + from_OceanHuedClam
                     else:
                         if len(from_OceanHuedClam) > 1:
-                            print(print_dict[0x11A0].format(set=(set_name if set_name != "" else "default")))
+                            print(exception_status_code[0x11A0].format(set=(set_name if set_name != "" else "default")))
                         for x in from_OceanHuedClam:
                             result += "." + x
             # around
@@ -292,7 +292,7 @@ class OceanHuedClam:
             if each_query.__global_bbox_list:
                 if not if_main:
                     # TODO:这个判断需要吗？
-                    print(print_dict[0x11A1].format(set_name))
+                    print(exception_status_code[0x11A1].format(set_name))
                 else:
                     bbox_info = "(bbox:"
                     for x in range(3):
