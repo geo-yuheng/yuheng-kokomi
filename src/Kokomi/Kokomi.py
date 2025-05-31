@@ -3,6 +3,9 @@ import requests
 from global_ import print_dict
 from OceanHuedClam import OceanHuedClam
 
+import yuheng
+from yuheng.method.network import get_endpoint_overpass
+
 class Kokomi:
     def __init__(self):
         self.energy = 50
@@ -44,18 +47,32 @@ class Kokomi:
     #   【-2】：不完整的自定义配置。
     def Watatsumi_set(self, preset: str, name: str = "", api: str = "") -> int:
         self.energy_check()
+        # Watatsumi_list = {
+        #     "OSMde": {
+        #         "Sangonomiya_name": "OSMde",
+        #         "Sangonomiya_api": "https://overpass-api.de/api/"
+        #     },
+        #     "OSMru": {
+        #         "Sangonomiya_name": "OSMru",
+        #         "Sangonomiya_api": "http://overpass.openstreetmap.ru/cgi/"
+        #     },
+        #     "OGF": {
+        #         "Sangonomiya_name": "OGF",
+        #         "Sangonomiya_api": "https://overpass.ogf.rent-a-planet.com/api/"
+        #     }
+        # }
         Watatsumi_list = {
             "OSMde": {
                 "Sangonomiya_name": "OSMde",
-                "Sangonomiya_api": "https://overpass-api.de/api/"
+                "Sangonomiya_api": get_endpoint_overpass(endpoint_name="osmde")
             },
             "OSMru": {
                 "Sangonomiya_name": "OSMru",
-                "Sangonomiya_api": "http://overpass.openstreetmap.ru/cgi/"
+                "Sangonomiya_api": get_endpoint_overpass(endpoint_name="osmru")
             },
             "OGF": {
                 "Sangonomiya_name": "OGF",
-                "Sangonomiya_api": "https://overpass.ogf.rent-a-planet.com/api/"
+                "Sangonomiya_api": get_endpoint_overpass(endpoint_name="ogf")
             }
         }
         if preset in Watatsumi_list:
