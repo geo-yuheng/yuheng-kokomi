@@ -1,10 +1,11 @@
-import requests
+from typing import Union
 
+import requests
+import yuheng
 from global_ import print_dict
 from OceanHuedClam import OceanHuedClam
-
-import yuheng
 from yuheng.method.network import get_endpoint_overpass
+
 
 class Kokomi:
     def __init__(self):
@@ -111,7 +112,7 @@ class Kokomi:
     #   【2】：向珊瑚宫成功地GET了报文；
     #   【-1】：珊瑚宫没有传回任何消息，可能是海祇岛（Network）连接原因；
     #   【-2】：珊瑚宫api未指定。
-    def query(self, query_info: (str or 'OceanHuedClam') = "", timeout: int = 500) -> list:
+    def query(self, query_info: Union[str , 'OceanHuedClam'] = "", timeout: int = 500) -> list:
         self.energy_check()
         result_list = []
         if isinstance(query_info, str):
