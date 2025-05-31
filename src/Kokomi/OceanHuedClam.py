@@ -1,15 +1,19 @@
 import copy
+from typing import Union
 
 from .const import exception_status_code
 
 # 要按照type.A(other_condition)[k_v](if)->.B;>;的顺序和结构去整理
 # TODO:不需要改变输入输出集时只需要一句话，需要怎么判断？
 
+
 # 海染砗磲（QL语句）：查询要素的条件，条件取上名称后就代表符合该条件的要素集。
 class OceanHuedClam:
     def __init__(self, nwr_type: str):
         self.__include_dict = {}
-        self.__from_OceanHuedClam_list = []  # or列表，列表元素若是列表，则其为and
+        self.__from_OceanHuedClam_list = (
+            []
+        )  # or列表，列表元素若是列表，则其为and
         self.__main_type = nwr_type
         self.__kv_dict = {}
         self.__around_dict = {}
@@ -24,8 +28,20 @@ class OceanHuedClam:
     #   参数3为【限定值，str】：对限定键的值的要求，默认为空str
     # 返回OceanHuedClam：
     #   如果成功，则返回已经追加限制语句的OceanHuedClam；否则原样不动地返回。
-    def key_value(self, key: str, relation: str, value: str = "") -> 'OceanHuedClam':
-        relation_list = ["exist", "!exist", "=", "!=", "=!=", "v-reg", "!v-reg", "kv-reg", "v-Aa_no_care"]
+    def key_value(
+        self, key: str, relation: str, value: str = ""
+    ) -> "OceanHuedClam":
+        relation_list = [
+            "exist",
+            "!exist",
+            "=",
+            "!=",
+            "=!=",
+            "v-reg",
+            "!v-reg",
+            "kv-reg",
+            "v-Aa_no_care",
+        ]
         # 存在key（value可不填）、不存在key、存在key且对应value匹配、存在key但对应value不匹配或不存在key、必须存在key但对应value不匹配，
         # v可含正则表达式、v可含正则表达式但不匹配、kv皆可含正则表达式，v可含正则表达式且不分大小写
         if relation in relation_list:
@@ -33,7 +49,9 @@ class OceanHuedClam:
                 print(exception_status_code[0x2105])
                 return self
             else:
-                self.__kv_dict.update({key: {"value": value, "relation": relation}})
+                self.__kv_dict.update(
+                    {key: {"value": value, "relation": relation}}
+                )
                 return self
         else:
             print(exception_status_code[0x2104])
@@ -48,7 +66,7 @@ class OceanHuedClam:
     #   参数2为【半径，int】：周边检索的半径，单位为米；
     # 返回OceanHuedClam：
     #   如果成功，则返回已经追加限制语句的OceanHuedClam；否则原样不动地返回。
-    def around(self, set_point: (str or list), r: int) -> 'OceanHuedClam':
+    def around(self, set_point: Union[str, list], r: int) -> "OceanHuedClam":
         # 要素集合
         if isinstance(set_point, str):
             if (set_point not in self.__include_dict) and (set_point != "_"):
@@ -71,7 +89,7 @@ class OceanHuedClam:
     #           每一项均为str：需要同时满足的海染砗磲（QL语句）名称；
     # 返回OceanHuedClam：
     #   如果成功，则返回已经追加限制语句的OceanHuedClam；否则原样不动地返回。
-    def set_from(self, set_name: (str or list)) -> 'OceanHuedClam':
+    def set_from(self, set_name: Union[str, list]) -> "OceanHuedClam":
         if isinstance(set_name, str):
             if (set_name in self.__include_dict) or (set_name == "_"):
                 self.__from_OceanHuedClam_list.append(set_name)
@@ -84,22 +102,30 @@ class OceanHuedClam:
                     if (x in self.__include_dict) or (x == "_"):
                         and_list.append(x)
                     else:
-                        print(exception_status_code[0x210C].format(set=set_name))
+                        print(
+                            exception_status_code[0x210C].format(set=set_name)
+                        )
                 else:
                     print(exception_status_code[0x210D])
             if len(and_list) > 0:
                 self.__from_OceanHuedClam_list.append(and_list)
         return self
 
-    def set_bbox(self, E: float, S: float, W: float, N: float) -> 'OceanHuedClam':
+    def set_bbox(
+        self, E: float, S: float, W: float, N: float
+    ) -> "OceanHuedClam":
         self.__global_bbox_list = [S, W, N, E]
         return self
 
-    def extend(self, direction: str, set_name: str = "_") -> 'OceanHuedClam':  # recurse
+    def extend(
+        self, direction: str, set_name: str = "_"
+    ) -> "OceanHuedClam":  # recurse
         self.__recurse_dict.update({set_name: direction})
         return self
 
-    def id(self, directive_id: (int or str or list), id_opreation: str = "=") -> 'OceanHuedClam':
+    def id(
+        self, directive_id: Union[int, str, list], id_opreation: str = "="
+    ) -> "OceanHuedClam":
         if isinstance(directive_id, list):
             for x in range(len(directive_id)):
                 self.__id_dict.update({str(directive_id[x]): id_opreation})
@@ -109,14 +135,16 @@ class OceanHuedClam:
         return self
 
     # 在多边形中（poly）
-    def located_in(self, poly_list: list) -> 'OceanHuedClam':
+    def located_in(self, poly_list: list) -> "OceanHuedClam":
         if len(poly_list) % 2 != 0:
             print(exception_status_code[0x2110])
         else:
             self.__located_in_list = poly_list
         return self
 
-    def include_OceanHuedClam(self, set_name: str, the_set: 'OceanHuedClam') -> 'OceanHuedClam':
+    def include_OceanHuedClam(
+        self, set_name: str, the_set: "OceanHuedClam"
+    ) -> "OceanHuedClam":
         if set_name in self.__include_dict:
             print(exception_status_code[0x1100].format(set=set_name))
         self.__include_dict.update({set_name: the_set})
@@ -173,7 +201,9 @@ class OceanHuedClam:
                 # and交集要合成一个query，or每个自己分别query：[A, B, [C,D]] = A ∪ B ∪ (C ∩ D)
                 for from_OceanHuedClam in self.__from_OceanHuedClam_list:
                     sub_OceanHuedClam_from = copy.deepcopy(self)
-                    sub_OceanHuedClam_from.__from_OceanHuedClam_list = [from_OceanHuedClam]
+                    sub_OceanHuedClam_from.__from_OceanHuedClam_list = [
+                        from_OceanHuedClam
+                    ]
                     query_list.extend(sub_OceanHuedClam_from.how_many_query(2))
             else:
                 query_list.extend(self.how_many_query(2))
@@ -184,7 +214,9 @@ class OceanHuedClam:
 
     # 仅在输出时指定的要素集名称（"...->.set_name"）；有引用的情况下，输出本「海染砗磲」时可在声明引用阶段一层一层往回带；
     # 输出QL语句列表
-    def convert(self, set_name: str = "", if_main: bool = True, outputed_list=None) -> list:
+    def convert(
+        self, set_name: str = "", if_main: bool = True, outputed_list=None
+    ) -> list:
         # 如果这个是主语句，最外层的，那么outputed列表应该清空
         if outputed_list is None:
             outputed_list = []
@@ -198,7 +230,9 @@ class OceanHuedClam:
             # 如果事先已经打印了，就不重复打印，防止A->B;A,B->C中打印两次A
             if include not in outputed:
                 # TODO:converted_list = ...；暂时先全部放一起，前置条件要不要分开怎么分开再想想
-                for x in self.__include_dict[include].convert(include, False, outputed):
+                for x in self.__include_dict[include].convert(
+                    include, False, outputed
+                ):
                     include_info += x
                 # 合并how_many_query()至convert前：result += self.__include_dict[include].convert(include, False, outputed)
                 outputed.append(include)
@@ -239,7 +273,15 @@ class OceanHuedClam:
                         result += "." + from_OceanHuedClam
                     else:
                         if len(from_OceanHuedClam) > 1:
-                            print(exception_status_code[0x11A0].format(set=(set_name if set_name != "" else "default")))
+                            print(
+                                exception_status_code[0x11A0].format(
+                                    set=(
+                                        set_name
+                                        if set_name != ""
+                                        else "default"
+                                    )
+                                )
+                            )
                         for x in from_OceanHuedClam:
                             result += "." + x
             # around
@@ -248,7 +290,13 @@ class OceanHuedClam:
                 for around in each_query.__around_dict:
                     # 要素集{set_point: r}；点串线{r: set_point}
                     if isinstance(around, str):
-                        around_info += "(around." + around + ":" + str(each_query.__around_dict[around]) + ")"
+                        around_info += (
+                            "(around."
+                            + around
+                            + ":"
+                            + str(each_query.__around_dict[around])
+                            + ")"
+                        )
                     else:
                         around_info += "(around" + ":" + str(around)
                         for point in each_query.__around_dict[around]:
@@ -257,33 +305,42 @@ class OceanHuedClam:
                 result += around_info
             # poly
             if each_query.__located_in_list:
-                poly_info = "(poly:\""
+                poly_info = '(poly:"'
                 for x in range(len(each_query.__located_in_list) - 1):
                     poly_info += str(each_query.__located_in_list[x]) + " "
-                poly_info += str(each_query.__located_in_list[len(each_query.__located_in_list) - 1]) + "\")"
+                poly_info += (
+                    str(
+                        each_query.__located_in_list[
+                            len(each_query.__located_in_list) - 1
+                        ]
+                    )
+                    + '")'
+                )
             # k_v
             limit_info = ""
             for key in each_query.__kv_dict:
                 value = each_query.__kv_dict[key].get("value")
                 match each_query.__kv_dict[key].get("relation"):
                     case "exist":  # 存在key（value可不填）
-                        now_info = "[\"" + key + "\"]"
+                        now_info = '["' + key + '"]'
                     case "!exist":  # 不存在key
-                        now_info = "[!\"" + key + "\"]"
+                        now_info = '[!"' + key + '"]'
                     case "=":  # 存在key且对应value匹配
-                        now_info = "[\"" + key + "\"" + "=\"" + value + "\"]"
+                        now_info = '["' + key + '"' + '="' + value + '"]'
                     case "!=":  # 存在key但对应value不匹配 或 不存在key
-                        now_info = "[\"" + key + "\"" + "!=\"" + value + "\"]"
+                        now_info = '["' + key + '"' + '!="' + value + '"]'
                     case "=!=":  # 必须存在key但对应value不匹配
-                        now_info = "[\"" + key + "\"][\"" + key + "\"!=\"" + value + "\"]"
+                        now_info = (
+                            '["' + key + '"]["' + key + '"!="' + value + '"]'
+                        )
                     case "v-reg":  # v可含正则表达式
-                        now_info = "[\"" + key + "\"~\"" + value + "\"]"
+                        now_info = '["' + key + '"~"' + value + '"]'
                     case "!v-reg":  # v可含正则表达式但不匹配
-                        now_info = "[\"" + key + "\"!~\"" + value + "\"]"
+                        now_info = '["' + key + '"!~"' + value + '"]'
                     case "kv-reg":  # kv皆可含正则表达式
-                        now_info = "[~\"" + key + "\"~\"" + value + "\"]"
+                        now_info = '[~"' + key + '"~"' + value + '"]'
                     case "v-Aa_no_care":  # v可含正则表达式且不分大小写
-                        now_info = "[~\"" + key + "\"~\"" + value + "\",i]"
+                        now_info = '[~"' + key + '"~"' + value + '",i]'
                     case _:
                         now_info = ""
                 limit_info += now_info
@@ -296,7 +353,9 @@ class OceanHuedClam:
                 else:
                     bbox_info = "(bbox:"
                     for x in range(3):
-                        bbox_info += str(each_query.__global_bbox_list[x]) + ","
+                        bbox_info += (
+                            str(each_query.__global_bbox_list[x]) + ","
+                        )
                     bbox_info += str(each_query.__global_bbox_list[3]) + ")"
                     result += bbox_info
             # ->.set
@@ -307,7 +366,9 @@ class OceanHuedClam:
             recurse_info = ""
             if self.__recurse_dict:
                 for recurse in self.__recurse_dict:
-                    recurse_info += "." + recurse + self.__recurse_dict[recurse] + ";"
+                    recurse_info += (
+                        "." + recurse + self.__recurse_dict[recurse] + ";"
+                    )
             result += recurse_info
             # 结束
             result_list.append(result)
