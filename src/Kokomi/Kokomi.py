@@ -2,7 +2,7 @@ from typing import Union
 
 import requests
 import yuheng
-from OceanHuedClam import OceanHuedClam
+from oceanhuedclam import OceanHuedClam
 from yuheng.method.network import get_endpoint_overpass
 
 from .const import exception_status_code
@@ -22,12 +22,14 @@ class Kokomi:
     # 诶，这个是...
     def energy_check(self):
         if self.check_energy == 1 and self.energy <= 30:
-            print("NOTICE: Now Kokomi has low energy(", self.energy,
-                  ") due to mass ERRORs.\n"
-                  "    For not showing this message, please set Kokomi's check_energy as 0.\n"
-                  "注意：发生的错误有点多，Kokomi感觉到有点累了。\n"
-                  "    退订请设置Kokomi的check_energy为0。\n"
-                  )
+            print(
+                "NOTICE: Now Kokomi has low energy(",
+                self.energy,
+                ") due to mass ERRORs.\n"
+                "    For not showing this message, please set Kokomi's check_energy as 0.\n"
+                "注意：发生的错误有点多，Kokomi感觉到有点累了。\n"
+                "    退订请设置Kokomi的check_energy为0。\n",
+            )
 
     # 还——给——我——
     def I_come_back(self):
@@ -66,22 +68,34 @@ class Kokomi:
         Watatsumi_list = {
             "OSMde": {
                 "Sangonomiya_name": "OSMde",
-                "Sangonomiya_api": get_endpoint_overpass(endpoint_name="osmde")
+                "Sangonomiya_api": get_endpoint_overpass(
+                    endpoint_name="osmde"
+                ),
             },
             "OSMru": {
                 "Sangonomiya_name": "OSMru",
-                "Sangonomiya_api": get_endpoint_overpass(endpoint_name="osmru")
+                "Sangonomiya_api": get_endpoint_overpass(
+                    endpoint_name="osmru"
+                ),
             },
             "OGF": {
                 "Sangonomiya_name": "OGF",
-                "Sangonomiya_api": get_endpoint_overpass(endpoint_name="ogf")
-            }
+                "Sangonomiya_api": get_endpoint_overpass(endpoint_name="ogf"),
+            },
         }
         if preset in Watatsumi_list:
-            self.Watatsumi["Sangonomiya_name"] = Watatsumi_list.get(preset)["Sangonomiya_name"]
-            self.Watatsumi["Sangonomiya_api"] = Watatsumi_list.get(preset)["Sangonomiya_api"]
-            print(exception_status_code[0x0001].format(name=self.Watatsumi["Sangonomiya_name"],
-                                            api=self.Watatsumi["Sangonomiya_api"]))
+            self.Watatsumi["Sangonomiya_name"] = Watatsumi_list.get(preset)[
+                "Sangonomiya_name"
+            ]
+            self.Watatsumi["Sangonomiya_api"] = Watatsumi_list.get(preset)[
+                "Sangonomiya_api"
+            ]
+            print(
+                exception_status_code[0x0001].format(
+                    name=self.Watatsumi["Sangonomiya_name"],
+                    api=self.Watatsumi["Sangonomiya_api"],
+                )
+            )
             self.energy = self.energy + 1
             return 1
         else:
@@ -89,8 +103,12 @@ class Kokomi:
                 if name != "" and api != "":
                     self.Watatsumi["Sangonomiya_name"] = name
                     self.Watatsumi["Sangonomiya_api"] = api
-                    print(exception_status_code[0x1001].format(name=self.Watatsumi["Sangonomiya_name"],
-                                                    api=self.Watatsumi["Sangonomiya_api"]))
+                    print(
+                        exception_status_code[0x1001].format(
+                            name=self.Watatsumi["Sangonomiya_name"],
+                            api=self.Watatsumi["Sangonomiya_api"],
+                        )
+                    )
                     self.energy = self.energy + 0
                     return 0
                 else:
@@ -113,40 +131,69 @@ class Kokomi:
     #   【2】：向珊瑚宫成功地GET了报文；
     #   【-1】：珊瑚宫没有传回任何消息，可能是海祇岛（Network）连接原因；
     #   【-2】：珊瑚宫api未指定。
-    def query(self, query_info: Union[str , 'OceanHuedClam'] = "", timeout: int = 500) -> list:
+    def query(
+        self, query_info: Union[str, "OceanHuedClam"] = "", timeout: int = 500
+    ) -> list:
         self.energy_check()
         result_list = []
         if isinstance(query_info, str):
             print(exception_status_code[0x0010])
             result_list.append(1)
-            result = self.get_content("data=[out:xml][timeout:" + str(timeout) + "];" + query_info + "out body;")
+            result = self.get_content(
+                "data=[out:xml][timeout:"
+                + str(timeout)
+                + "];"
+                + query_info
+                + "out body;"
+            )
             result_list.append(result)
         else:
             query_list = query_info.convert()
             result_list.append(len(query_list))
             for x in range(len(query_list)):
-                print(exception_status_code[0x0011].format(now=x+1, total=len(query_list)))
-                result = self.get_content("data=[out:xml][timeout:" + str(timeout) + "];" + query_list[x] + "out body;")
+                print(
+                    exception_status_code[0x0011].format(
+                        now=x + 1, total=len(query_list)
+                    )
+                )
+                result = self.get_content(
+                    "data=[out:xml][timeout:"
+                    + str(timeout)
+                    + "];"
+                    + query_list[x]
+                    + "out body;"
+                )
                 result_list.append(result)
         return result_list
 
     def get_content(self, query_info: str = ""):
-        print(self.Watatsumi["Sangonomiya_api"] + "interpreter?" + query_info, "\n")
+        print(
+            self.Watatsumi["Sangonomiya_api"] + "interpreter?" + query_info,
+            "\n",
+        )
         if self.Watatsumi["Sangonomiya_api"] == "":
             print(exception_status_code[0x2000])
             self.energy = self.energy - 2
             return -2
         else:
-            text_temp = requests.get(self.Watatsumi["Sangonomiya_api"] + "interpreter?" + query_info).text
+            text_temp = requests.get(
+                self.Watatsumi["Sangonomiya_api"] + "interpreter?" + query_info
+            ).text
             if text_temp == "":
                 print(exception_status_code[0x2010])
                 self.energy = self.energy - 1
                 return -1
             else:
                 self.directive_text_temp = text_temp
-                self.directive_dict["node"].update(self.get_directive_dict("node", text_temp))
-                self.directive_dict["way"].update(self.get_directive_dict("way", text_temp))
-                self.directive_dict["relation"].update(self.get_directive_dict("relation", text_temp))
+                self.directive_dict["node"].update(
+                    self.get_directive_dict("node", text_temp)
+                )
+                self.directive_dict["way"].update(
+                    self.get_directive_dict("way", text_temp)
+                )
+                self.directive_dict["relation"].update(
+                    self.get_directive_dict("relation", text_temp)
+                )
                 self.energy = self.energy + 2
                 return 2
 
@@ -164,36 +211,49 @@ class Kokomi:
     #       },
     #   ...
     #   }。
-    def get_directive_dict(self, directive_type: str, directive_text: str = ""):
+    def get_directive_dict(
+        self, directive_type: str, directive_text: str = ""
+    ):
         if directive_type in self.directive_type:
             directive_front = 0
             directive_behind = 0
             directive_found = 0
             directive_list = {}
             # 用behind作为start是说从上一个结束之后开始查下一个
-            while directive_text.find("<" + directive_type, directive_behind) != -1:
+            while (
+                directive_text.find("<" + directive_type, directive_behind)
+                != -1
+            ):
                 # 找报文开头结尾
-                directive_front = directive_text.find("<" + directive_type, directive_behind)
+                directive_front = directive_text.find(
+                    "<" + directive_type, directive_behind
+                )
                 # 如果“"/>”比“">”先来，那说明只有一行，结尾是“/>“（/>不取双引号"因为取id要用）
-                if directive_text.find("/>", directive_front) < directive_text.find("\">", directive_front):
-                    directive_behind = directive_text.find("/>", directive_front)
+                if directive_text.find(
+                    "/>", directive_front
+                ) < directive_text.find('">', directive_front):
+                    directive_behind = directive_text.find(
+                        "/>", directive_front
+                    )
                 else:  # 否则是很多行，结尾是"</" + directive_type + ">"
-                    directive_behind = directive_text.find("</" + directive_type + ">", directive_front)
-                dealt_text = directive_text[directive_front: directive_behind]
+                    directive_behind = directive_text.find(
+                        "</" + directive_type + ">", directive_front
+                    )
+                dealt_text = directive_text[directive_front:directive_behind]
                 directive_found = directive_found + 1
 
                 # 找id
-                id_front = dealt_text.find("id=\"") + 4
-                id_behind = dealt_text.find("\"", id_front)
+                id_front = dealt_text.find('id="') + 4
+                id_behind = dealt_text.find('"', id_front)
                 directive_id = dealt_text[id_front:id_behind]
                 # 点经纬度
                 lon_lat_list = []
                 if directive_type == "node":
-                    lat_front = dealt_text.find("lat=\"") + 5
-                    lat_behind = dealt_text.find("\"", lat_front)
+                    lat_front = dealt_text.find('lat="') + 5
+                    lat_behind = dealt_text.find('"', lat_front)
                     directive_lat = dealt_text[lat_front:lat_behind]
-                    lon_front = dealt_text.find("lon=\"") + 5
-                    lon_behind = dealt_text.find("\"", lon_front)
+                    lon_front = dealt_text.find('lon="') + 5
+                    lon_behind = dealt_text.find('"', lon_front)
                     directive_lon = dealt_text[lon_front:lon_behind]
                     lon_lat_list = [directive_lon, directive_lat]
 
@@ -207,7 +267,7 @@ class Kokomi:
                 while dealt_text.find(">\n", line_behind) != -1:
                     line_front = dealt_text.find(">\n", line_behind)
                     line_behind = dealt_text.find(">\n", line_front + 1)
-                    line_text = dealt_text[line_front + 2:line_behind]
+                    line_text = dealt_text[line_front + 2 : line_behind]
                     # print(line_text)
                     # line_found = line_found + 1
 
@@ -215,38 +275,69 @@ class Kokomi:
                     # TODO:可以使用directive_type判断？
                     if line_text.find("<tag") != -1:
                         line_key = line_text[
-                                   line_text.find("k=\"") + 3:line_text.find("\" ", line_text.find("k=\"") + 3)]
+                            line_text.find('k="')
+                            + 3 : line_text.find(
+                                '" ', line_text.find('k="') + 3
+                            )
+                        ]
                         line_value = line_text[
-                                     line_text.find("v=\"") + 3:line_text.find("\"/", line_text.find("k=\"") + 3)]
+                            line_text.find('v="')
+                            + 3 : line_text.find(
+                                '"/', line_text.find('k="') + 3
+                            )
+                        ]
                         # print(line_key, line_value)
                         tag_dict.update({line_key: line_value})
                     if line_text.find("<member") != -1:
-                        member_type = line_text[line_text.find("type=\"") + 6
-                                                :line_text.find("\" ", line_text.find("type=\"") + 6)]
-                        member_ref = line_text[line_text.find("ref=\"") + 5
-                                               :line_text.find("\" ", line_text.find("ref=\"") + 5)]
-                        member_role = line_text[line_text.find("role=\"") + 6
-                                                :line_text.find("\"/", line_text.find("role=\"") + 6)]
+                        member_type = line_text[
+                            line_text.find('type="')
+                            + 6 : line_text.find(
+                                '" ', line_text.find('type="') + 6
+                            )
+                        ]
+                        member_ref = line_text[
+                            line_text.find('ref="')
+                            + 5 : line_text.find(
+                                '" ', line_text.find('ref="') + 5
+                            )
+                        ]
+                        member_role = line_text[
+                            line_text.find('role="')
+                            + 6 : line_text.find(
+                                '"/', line_text.find('role="') + 6
+                            )
+                        ]
                         # print(member_type, member_ref, member_role)
-                        member_dict.update({member_type + member_ref: member_role})
+                        member_dict.update(
+                            {member_type + member_ref: member_role}
+                        )
                     if line_text.find("<nd") != -1:
-                        node_ref = line_text[line_text.find("ref=\"") + 5
-                                             :line_text.find("\"/", line_text.find("ref=\"") + 5)]
+                        node_ref = line_text[
+                            line_text.find('ref="')
+                            + 5 : line_text.find(
+                                '"/', line_text.find('ref="') + 5
+                            )
+                        ]
                         # print(node_ref)
                         node_list.append(node_ref)
 
                 # 准备返回的dict的子项
-                directive = {"type": directive_type,
-                             "tag_dict": tag_dict,
-                             "member_dict": member_dict,
-                             "node_list": node_list,
-                             "text": dealt_text,
-                             "lon_lat": lon_lat_list
-                             }
+                directive = {
+                    "type": directive_type,
+                    "tag_dict": tag_dict,
+                    "member_dict": member_dict,
+                    "node_list": node_list,
+                    "text": dealt_text,
+                    "lon_lat": lon_lat_list,
+                }
                 directive_list.update({directive_id: directive})
 
             # 结束
-            print(exception_status_code[0x0012].format(number=directive_found, type=directive_type))
+            print(
+                exception_status_code[0x0012].format(
+                    number=directive_found, type=directive_type
+                )
+            )
             self.energy = self.energy + 1
             return directive_list
         else:
